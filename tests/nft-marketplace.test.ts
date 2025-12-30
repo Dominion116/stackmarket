@@ -1,4 +1,4 @@
-import { Clarinet, Tx, Chain, Account, types } from "clarinet";
+import { Clarinet, Tx, Chain, Account, types } from "@stacks/clarinet-sdk";
 
 Clarinet.test({
   name: "list, update, cancel, buy flow works with mock NFT and admin controls",

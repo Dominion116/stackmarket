@@ -1,11 +1,6 @@
 ;; Mock SIP-009-style NFT contract for testing the marketplace
 
-(define-trait sip009-nft-trait
-  ((transfer (token-id uint) (sender principal) (recipient principal)) (response bool uint))
-  ((get-owner (token-id uint)) (response (optional principal) uint))
-)
-
-(impl-trait .sip009-nft-trait)
+(impl-trait .nft-trait.nft-trait)
 
 (define-data-var next-id uint u1)
 (define-map owners uint principal)
