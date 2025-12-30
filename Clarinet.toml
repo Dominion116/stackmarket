@@ -1,33 +1,32 @@
 [project]
-name = "stackmarket"
-description = ""
+name = "nft-marketplace"
 authors = []
+description = "NFT Marketplace for Stacks blockchain"
 telemetry = true
 cache_dir = "./.cache"
 requirements = []
+boot_contracts = []
+
 [contracts.nft-trait]
 path = "contracts/nft-trait.clar"
-clarity_version = 1
-analysis = { check_checker = { enabled = true, trusted_sender = false, trusted_caller = false, callee_filter = false }}
+clarity_version = 2
+epoch = 2.4
 
 [contracts.mock-nft]
 path = "contracts/mock-nft.clar"
-clarity_version = 1
-analysis = { check_checker = { enabled = true, trusted_sender = false, trusted_caller = false, callee_filter = false }}
-depends_on = ["nft-trait"]
+clarity_version = 2
+epoch = 2.4
 
 [contracts.nft-marketplace]
 path = "contracts/nft-marketplace.clar"
-clarity_version = 1
-analysis = { check_checker = { enabled = true, trusted_sender = false, trusted_caller = false, callee_filter = false }}
-depends_on = ["nft-trait"]
+clarity_version = 2
+epoch = 2.4
 
-[repl]
-clarity_version = 1
 [repl.analysis]
 passes = ["check_checker"]
 
 [repl.analysis.check_checker]
+strict = false
 trusted_sender = false
 trusted_caller = false
 callee_filter = false
