@@ -5,8 +5,11 @@ authors = []
 telemetry = true
 cache_dir = "./.cache"
 
-# [contracts.counter]
-# path = "contracts/counter.clar"
+[contracts.mock-nft]
+path = "contracts/mock-nft.clar"
+
+[contracts.nft-marketplace]
+path = "contracts/nft-marketplace.clar"
 
 [repl.analysis]
 passes = ["check_checker"]
