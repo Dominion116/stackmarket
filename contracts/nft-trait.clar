@@ -1,6 +1,12 @@
+;; NFT Trait Definition (SIP-009 style)
+;; This trait must be implemented by any NFT contract that wants to work with the marketplace
+
 (define-trait nft-trait
   (
-    (transfer (token-id uint) (sender principal) (recipient principal) (response bool uint))
-    (get-owner (token-id uint) (response (optional principal) uint))
+    ;; Transfer ownership of a token
+    (transfer (uint principal principal) (response bool uint))
+    
+    ;; Get the owner of a token
+    (get-owner (uint) (response (optional principal) uint))
   )
 )

@@ -7,8 +7,6 @@
 ;; Constants & Errors
 ;; ---------------------------------------
 
-;; Owner set to deployer at contract publish time, but stored as data-var
-;; so it can be transferred later if needed.
 (define-data-var contract-owner principal tx-sender)
 
 (define-constant err-owner-only (err u100))
@@ -61,15 +59,15 @@
 ;; ---------------------------------------
 
 (define-private (is-nft-owner
-  (nft-contract .nft-trait.nft-trait)
+  (nft-contract <nft-trait>)
   (token-id uint)
   (owner principal)
 )
   (match (contract-call? nft-contract get-owner token-id)
     ok-val
       (match ok-val
-        nft-owner (is-eq (default-to owner nft-owner) owner)
-      )
+        nft-owner (is-eq nft-owner owner)
+        false)
     err-val false
   )
 )
@@ -78,7 +76,7 @@
 ;; Public functions
 ;; ---------------------------------------
 
-(define-public (list-nft (nft-contract .nft-trait.nft-trait) (token-id uint) (price uint))
+(define-public (list-nft (nft-contract <nft-trait>) (token-id uint) (price uint))
   (let
     (
       (listing-key { nft-contract: (contract-of nft-contract), token-id: token-id })
@@ -100,7 +98,7 @@
   )
 )
 
-(define-public (update-listing (nft-contract .nft-trait.nft-trait) (token-id uint) (new-price uint))
+(define-public (update-listing (nft-contract <nft-trait>) (token-id uint) (new-price uint))
   (let
     (
       (listing-key { nft-contract: (contract-of nft-contract), token-id: token-id })
@@ -117,7 +115,7 @@
   )
 )
 
-(define-public (cancel-listing (nft-contract .nft-trait.nft-trait) (token-id uint))
+(define-public (cancel-listing (nft-contract <nft-trait>) (token-id uint))
   (let
     (
       (listing-key { nft-contract: (contract-of nft-contract), token-id: token-id })
@@ -130,7 +128,7 @@
   )
 )
 
-(define-public (buy-nft (nft-contract .nft-trait.nft-trait) (token-id uint))
+(define-public (buy-nft (nft-contract <nft-trait>) (token-id uint))
   (let
     (
       (listing-key { nft-contract: (contract-of nft-contract), token-id: token-id })
@@ -142,23 +140,25 @@
     )
     (asserts! (not (is-eq tx-sender seller)) err-unauthorized)
 
+    ;; Transfer payment to seller
     (try! (stx-transfer? seller-proceeds tx-sender seller))
+    
+    ;; Transfer fee to contract owner
     (try! (stx-transfer? fee tx-sender (var-get contract-owner)))
 
-    (let ((nft-transfer-resp (contract-call? nft-contract transfer token-id seller tx-sender)) )
-      (match nft-transfer-resp
-        nft-ok
-          (begin
-            (map-set user-sales-count
-              seller
-              (+ (get-user-sales seller) u1)
-            )
-            (map-delete listings listing-key)
-            (ok true)
-          )
-        nft-err (err err-nft-transfer-failed)
-      )
+    ;; Transfer NFT from seller to buyer (tx-sender)
+    (unwrap! (contract-call? nft-contract transfer token-id seller tx-sender) err-nft-transfer-failed)
+    
+    ;; Update seller stats
+    (map-set user-sales-count
+      seller
+      (+ (get-user-sales seller) u1)
     )
+    
+    ;; Remove listing
+    (map-delete listings listing-key)
+    
+    (ok true)
   )
 )
 
